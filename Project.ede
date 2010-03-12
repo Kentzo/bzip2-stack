@@ -1,0 +1,13 @@
+;; Object pbzip2_custom
+;; EDE project file.
+(ede-proj-project "pbzip2_custom"
+  :name "pbzip2_custom"
+  :file "Project.ede"
+  :targets (list 
+   (ede-proj-target-makefile-program "Debug"
+    :name "Debug"
+    :path ""
+    :source '("block.h" "block.cpp" "main.cpp")
+    )
+   )
+  )
