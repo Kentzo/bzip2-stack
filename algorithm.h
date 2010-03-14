@@ -40,6 +40,7 @@ namespace bzip2 {
 
     template<typename InputIterator>
       block reverse_rle(InputIterator first, InputIterator end) {
+      // TODO: It is possible to process block in several parallel processes
       assert(first <= end);
       using namespace std;
 
@@ -49,11 +50,13 @@ namespace bzip2 {
       while (first < end) {
 	InputIterator last = find_if(first, end, bind2nd(not_equal_to<char>(), *first));
 	size_t size = last - first;
+	// If size less than 4 just print sequence
 	if (size < 4)
 	  decompressed_data.append(size, *first);
+	// Otherwise count of symbols is equal to *last + 4
 	else {
 	  decompressed_data.append(4 + *last, *first);
-	  ++first;
+	  ++first; // *last symbol isn't in original sequence
 	}
 	first += size;
       }
