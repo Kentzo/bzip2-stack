@@ -1,8 +1,8 @@
-./build/program : main.o stringmap.o
+./build/program : main.o block.o
 	g++ -o $@ $^ -Wall
 main.o : main.cpp
 	g++ -c $^ -Wall
-stringmap.o : stringmap.cpp
+block.o : block.cpp
 	g++ -c $^ -Wall
 clean :
 	rm *.o *.gch
