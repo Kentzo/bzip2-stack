@@ -8,6 +8,7 @@
     :name "Debug"
     :path ""
     :source '("block.h" "block.cpp" "main.cpp")
+    :auxsource '("algorithm.h")
     )
    )
   )
