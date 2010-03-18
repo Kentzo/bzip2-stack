@@ -107,3 +107,9 @@ bzip2::block& bzip2::algorithm::reverse_mtf(block& blck) {
   
   return blck;
 }
+
+bzip2::block& bzip2::algorithm::bwt(block& blck) {
+  
+}
+bzip2::block& bzip2::algorithm::reverse_bwt(block& blck) {
+}
