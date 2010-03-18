@@ -1,5 +1,6 @@
 #pragma once
 
+#include "block.h"
 #include <algorithm>
 #include <functional>
 #include <cassert>
