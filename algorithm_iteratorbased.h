@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <functional>
 #include <cassert>
+#include <list>
 
 namespace bzip2 {
   namespace algorithm {
@@ -61,6 +62,67 @@ namespace bzip2 {
 	}
 	first += size;
       }
+      return decompressed_data;
+    }
+
+    template<typename InputIterator>
+      block mtf(InputIterator first, InputIterator end) {
+      using namespace std;
+      assert(first <= end);
+      using namespace std;
+
+       // alphabet contains all possible symbols for 1byte
+      list<char> alphabet(256);
+      list<char>::iterator pos = alphabet.begin(), end2 = alphabet.end();
+      for (char i=0; pos != end2; ++i, ++pos) {
+	*pos = i;
+      }
+      
+      block compressed_data;
+      compressed_data.reserve(distance(first, end));
+      // Map symbols to their indexes in alphabet
+      while (first < end) {
+	// Locate position of i-th symbol and replace it with index of this symbol in the alphabet
+	list<char>::iterator alphabet_pos = find(alphabet.begin(), alphabet.end(), *first);
+	size_t index = distance(alphabet.begin(), alphabet_pos);
+	compressed_data.push_back(index);
+	// Move this symbol to the front of the alphabet
+	alphabet.push_front(*alphabet_pos);
+	alphabet.erase(alphabet_pos);
+	++first;
+      }
+  
+      return compressed_data;
+    }
+
+    template<typename InputIterator>
+      block reverse_mtf(InputIterator first, InputIterator end) {
+      using namespace std;
+      assert(first <= end);
+      using namespace std;
+
+       // alphabet contains all possible symbols for 1byte
+      list<char> alphabet(256);
+      list<char>::iterator pos = alphabet.begin(), end2 = alphabet.end();
+      for (char i=0; pos != end2; ++i, ++pos) {
+	*pos = i;
+      }
+      
+      block decompressed_data;
+      decompressed_data.reserve(distance(first, end));
+      // Map symbols to their indexes in alphabet
+      while (first < end) {
+	// Every blck[i] symbol is a position of real symbol in the alphabet
+	size_t index = static_cast<unsigned char>(*first); // Convert char to unsigned char in order to correctly convert it to size_t
+	list<char>::iterator alphabet_pos = alphabet.begin();
+	advance(alphabet_pos, index);
+	decompressed_data.push_back(*alphabet_pos);
+	// Move this symbol to the front of the alphabet
+	alphabet.push_front(*alphabet_pos);
+	alphabet.erase(alphabet_pos);
+	++first;
+      }
+  
       return decompressed_data;
     }
   }
