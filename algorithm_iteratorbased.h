@@ -112,7 +112,7 @@ namespace bzip2 {
       decompressed_data.reserve(distance(first, end));
       // Map symbols to their indexes in alphabet
       while (first < end) {
-	// Every blck[i] symbol is a position of real symbol in the alphabet
+	// Every blck[i] symbol has a position of real symbol in the alphabet
 	size_t index = static_cast<unsigned char>(*first); // Convert char to unsigned char in order to correctly convert it to size_t
 	list<char>::iterator alphabet_pos = alphabet.begin();
 	advance(alphabet_pos, index);
