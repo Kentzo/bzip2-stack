@@ -67,7 +67,6 @@ namespace bzip2 {
 
     template<typename InputIterator>
       block mtf(InputIterator first, InputIterator end) {
-      using namespace std;
       assert(first <= end);
       using namespace std;
 
@@ -97,7 +96,6 @@ namespace bzip2 {
 
     template<typename InputIterator>
       block reverse_mtf(InputIterator first, InputIterator end) {
-      using namespace std;
       assert(first <= end);
       using namespace std;
 
