@@ -95,7 +95,7 @@ bzip2::block& bzip2::algorithm::reverse_mtf(block& blck) {
   }
 
   for (size_t i=0, size=blck.size(); i<size; ++i) {
-    // Every blck[i] symbol is a position of real symbol in the alphabet
+    // Every blck[i] symbol has a position of real symbol in the alphabet
     size_t index = static_cast<unsigned char>(blck.at(i)); // Convert char to unsigned char in order to correctly convert it to size_t
     list<char>::iterator alphabet_pos = alphabet.begin();
     advance(alphabet_pos, index);
