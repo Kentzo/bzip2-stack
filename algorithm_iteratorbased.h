@@ -37,6 +37,7 @@ namespace bzip2 {
 	}
 	first = last;
       }
+
       return compressed_data;
     }
 
@@ -62,12 +63,12 @@ namespace bzip2 {
 	}
 	first += size;
       }
+
       return decompressed_data;
     }
 
     template<typename InputIterator>
       block mtf(InputIterator first, InputIterator end) {
-      assert(first <= end);
       using namespace std;
 
        // alphabet contains all possible symbols for 1byte
@@ -80,7 +81,7 @@ namespace bzip2 {
       block compressed_data;
       compressed_data.reserve(distance(first, end));
       // Map symbols to their indexes in alphabet
-      while (first < end) {
+      while (first != end) {
 	// Locate position of i-th symbol and replace it with index of this symbol in the alphabet
 	list<char>::iterator alphabet_pos = find(alphabet.begin(), alphabet.end(), *first);
 	size_t index = distance(alphabet.begin(), alphabet_pos);
@@ -96,7 +97,6 @@ namespace bzip2 {
 
     template<typename InputIterator>
       block reverse_mtf(InputIterator first, InputIterator end) {
-      assert(first <= end);
       using namespace std;
 
        // alphabet contains all possible symbols for 1byte
@@ -109,7 +109,7 @@ namespace bzip2 {
       block decompressed_data;
       decompressed_data.reserve(distance(first, end));
       // Map symbols to their indexes in alphabet
-      while (first < end) {
+      while (first != end) {
 	// Every blck[i] symbol has a position of real symbol in the alphabet
 	size_t index = static_cast<unsigned char>(*first); // Convert char to unsigned char in order to correctly convert it to size_t
 	list<char>::iterator alphabet_pos = alphabet.begin();
