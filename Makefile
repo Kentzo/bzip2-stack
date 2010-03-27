@@ -11,9 +11,10 @@ ede_FILES=Project.ede Makefile
 
 Debug_SOURCES=block.h block.cpp main.cpp algorithm_blockbased.cpp
 Debug_OBJ= block.o main.o algorithm_blockbased.o
+CPPFLAGS=-Wall
 CXX= g++
 CXX_COMPILE=$(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
-CXX_DEPENDENCIES=-Wall,-MD,.deps/$(*F).P
+CXX_DEPENDENCIES=-Wp,-MD,.deps/$(*F).P
 CXX_LINK=$(CXX) $(CFLAGS) $(LDFLAGS) -L.
 VERSION=1.0
 DISTDIR=$(top)pbzip2_custom-$(VERSION)
