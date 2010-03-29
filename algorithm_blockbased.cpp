@@ -109,110 +109,92 @@ bzip2::block& bzip2::algorithm::reverse_mtf(block& blck) {
   return blck;
 }
 
-// This algorithm is described at "A Block-sorting Lossless Data Compression Algorithm" 
-// original article from M. Burrows and D.J. Wheeler
 bzip2::block& bzip2::algorithm::bwt(block& blck) {
   using namespace std;
 
-  size_t word_size = sizeof(size_t)/sizeof(char);
-  // Q1 
-  // [form extended string]
-  blck.append(word_size, block::traits_type::eof());
+  // Add special EOF character
+  blck.push_back(block::traits_type::eof());
 
-  // Q2 and Q3
-  // [form array of words] and [form array of suffixes]
-  vector<block::iterator> words;
-  words.reserve(blck.size());
-  for (size_t i=0, size=blck.size(); i<size; ++i) {
-    block::iterator it = blck.begin();
-    advance(it, i);
-    words.push_back(it);
+  size_t bucketptr_a[256] = {0}, bucketptr_b[256] = {0};
+  size_t bucketsize_b[256] = {0};
+  
+  // Initialize bucketptrs
+  {
+    size_t bucketsize_a[256] = {0};
+    for (size_t i=0, size=blck.size()-1; i<size; ++i) {
+      char cur_char = blck.at(i), next_char = blck.at(i + 1);
+      size_t index = static_cast<unsigned char>(cur_char);
+      if (cur_char > next_char)
+	bucketsize_a[index] += 1;
+      else
+	bucketsize_b[index] += 1;
+    }
+    bucketsize_b[0] = 1;
+
+    for (size_t i=0, size=256, ptr=0; i<size; ++i) {
+      bucketptr_a[i] = ptr;
+      ptr += bucketsize_a[i];
+      ptr += bucketsize_b[i];
+      bucketptr_b[i] = ptr; // bucketptr_b pointer to the end of bucket on the suffix_array, we will fix it at the next step
+    }
+  }
+
+  vector<size_t> suffix_array(blck.size());
+  fill(suffix_array.begin(), suffix_array.end(), block::traits_type::eof());
+
+  // Set indexes of Type B on the suffix_array
+  for (size_t i=0, size=blck.size()-1; i<size; ++i) {
+    char cur_char = blck.at(i), next_char = blck.at(i + 1);
+    size_t index = static_cast<unsigned char>(cur_char);
+    if (cur_char <= next_char) {
+      bucketptr_b[index] -= 1;
+      suffix_array.at(bucketptr_b[index]) = i;
+    }
+  }
+  suffix_array.at(0) = blck.size() - 1;
+  
+  // Sort buckets of Type B on suffix_array
+  for (size_t i=0, size=256; i<size; ++i) {
+    if (bucketsize_b[i] > 1) {
+      vector<size_t>::iterator first = suffix_array.begin() + bucketptr_b[i];
+      vector<size_t>::iterator end = first + bucketsize_b[i];
+      sort(first, end, suffix_compare(blck));
+    }
+  }
+
+  // Sort buckets of Type A on suffix_array
+  for (size_t i=0, size=suffix_array.size()-1; i<size; ++i) {
+    size_t cur_pos = suffix_array.at(i);
+    if (cur_pos) { // If cur_pos == 0, there is nothing to do
+      size_t prev_pos = cur_pos - 1;
+      if (blck.at(prev_pos) > blck.at(cur_pos)) {
+	size_t index = static_cast<unsigned char>(blck.at(prev_pos));
+	suffix_array.at(bucketptr_a[index]) = prev_pos;
+	bucketptr_a[index] += 1;
+      }
+    }
   }
   
-  // Q4
-  // [radix sort]
-  for (size_t k=0; k<2; ++k) { // Radix sort based on first two characters of each suffix
-    // Counting sort
-    size_t C[256] = {0};
-    for (size_t i=0, size=words.size(); i<size; ++i) {
-      block::iterator character = words.at(i + k);
-      size_t index = static_cast<unsigned char>(*character);
-      C[index] += 1;
-    }
-    for (size_t i=1, size=sizeof(C)/sizeof(size_t); i<size; ++i) {
-      C[i] = C[i-1];
-    }
-    vector<block::iterator> tmp_words(words.size());
-    for (size_t i=0, size=words.size(); i<size; ++i) {
-      block::iterator character = words.at(i + k);
-      size_t index = static_cast<unsigned char>(*character);
-      tmp_words.at(C[index]) = character;
-      C[index] -= 1;
-    }
-    tmp_words.swap(words);
+  block compressed_data(blck);
+  for (size_t i=0, size=blck.size(); i<size; ++i) {
+    size_t index = suffix_array.at(i);
+    if (index)
+      compressed_data.at(i) = blck.at(index - 1);
+    else
+      compressed_data.at(i) = block::traits_type::eof();
   }
+  blck.swap(compressed_data);
 
-  // Q5 
-  // [iterate over each character in the alphabet]
-  char* chars = new char[2];
-  vector<block::iterator>::iterator last_pos = words.begin();
-  for (char ch=0; ch<256; ++ch) {
-    // Q6
-    // [quicksort suffixes starting with ch]
-    // For each character ch' in the alphabet: Apply quicksort to the elements of words starting with ch followed by ch'
-    chars[0] = ch;
-    for (char ch_=0; ch_<256; ++ch_) {
-      chars[1] = ch_;
-      pos = find_if(last_pos, words.end(), not1(helpers::chars_compare(two_char, 2)));
-      helpers::qsort(last_pos, pos, word_size);
-      last_pos = pos;
-    }
-
-    // Q7
-    // [update sort keys]
-    
-    
-  }
-  delete[] two_char;
-  /*
-  vector<block> words; // words = W
-  words.reserve(blck.size());
-  for (size_t i=0, size=blck.size(); i<size; ++i)
-    words.push_back(blck.substr(i, i + word_size - 1)); // W[i] contains the characters S'[i,...,i+k-1]
-  // Q3 [form array of suffixes]
-  list<size_t> suffixes; // suffixes = V
-  suffixes.reserve(blck.size());
-  for (size_t i=0, size=blck.size(); i<size; ++i)
-    suffixes.push_back(i); // every j = suffixes[i] represents j-th suffix of extended string S'
-  // Q4 [radix sort] Sort the elements of V, using the first two characters of each suffix as the sort key
-  */
+  return blck;
 }
 
 bzip2::block& bzip2::algorithm::reverse_bwt(block& blck) {
 }
 
-void bzip2::algorithm::helpers::bwt::qsort(vector<block::iterator>::iterator first, 
-					  vector<block::iterator>::iterator end, size_t word_size) 
-{
-  assert(first <= end);
-  vector<block::iterator>::iterator i = first, j = end - 1;
-  block::iterator x = *i;
-  do {
-    while (std::lexicographical_compare(*i, i + word_size, x, x + word_size)) ++i;
-    while (std::lexicographical_compare(x, x + word_size, *j, *j + word_size)) --j;
-    if (j >= i) {
-      swap(*i, *j);
-      ++i;
-      --j;
-    }
-  }
-  while (j >= i);
-  if (j > b) qsort(b, j + 1, word_size);
-  if (e > i + 1) qsort(i, e, word_size);
-}
-
-bzip2::algorithm::helpers::bwt::chars_compare::chars_compare(const char* chars, size_t size) 
-  : _chars(chars), _size(size) {}
-bool bzip2::algorithm::helpers::bwt::chars_compare::operator()(block::iterator it) {
-  return std::lexicographical_compare(it, it + size, chars, chars + size);
+bzip2::algorithm::suffix_compare::suffix_compare(const block& blck) : _blck(blck) {}
+bool bzip2::algorithm::suffix_compare::operator()(size_t left, size_t right) {
+  block::const_iterator lbegin = _blck.begin(), lend = _blck.end(), rbegin = _blck.begin(), rend = _blck.end();
+  std::advance(lbegin, left);
+  std::advance(rbegin, right);
+  return std::lexicographical_compare(lbegin, lend, rbegin, rend);
 }
