@@ -45,5 +45,12 @@ int main() {
     results << "RLE iteratorbased test is passed: " << is_equal << endl;
   }
 
+  block b("abraca");
+  cout << b << endl;
+  bwt(b);
+  cout << b << endl;
+  reverse_bwt(b);
+  cout << b << endl;
+
   return 0;
 }

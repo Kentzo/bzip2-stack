@@ -9,9 +9,9 @@
 top="$(CURDIR)"/
 ede_FILES=Project.ede Makefile
 
-Debug_SOURCES=block.h block.cpp main.cpp algorithm_blockbased.cpp
-Debug_OBJ= block.o main.o algorithm_blockbased.o
-CPPFLAGS=-Wall
+Debug_SOURCES=block.h block.cpp main.cpp algorithm_blockbased.cpp radix.cpp
+Debug_OBJ= block.o main.o algorithm_blockbased.o radix.o
+CPPFLAGS= -Wall
 CXX= g++
 CXX_COMPILE=$(CXX) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 CXX_DEPENDENCIES=-Wp,-MD,.deps/$(*F).P
@@ -20,7 +20,7 @@ VERSION=1.0
 DISTDIR=$(top)pbzip2_custom-$(VERSION)
 top_builddir = 
 
-DEP_FILES=.deps/block.P .deps/block.P .deps/main.P .deps/algorithm_blockbased.P .deps/algorithm.P .deps/algorithm_blockbased.P .deps/algorithm_iteratorbased.P
+DEP_FILES=.deps/block.P .deps/block.P .deps/main.P .deps/algorithm_blockbased.P .deps/radix.P .deps/algorithm_blockbased.P .deps/algorithm_iteratorbased.P .deps/radix.P .deps/bwt.P
 
 all: Debug
 

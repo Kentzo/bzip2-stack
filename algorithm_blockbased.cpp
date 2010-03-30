@@ -112,9 +112,6 @@ bzip2::block& bzip2::algorithm::reverse_mtf(block& blck) {
 bzip2::block& bzip2::algorithm::bwt(block& blck) {
   using namespace std;
 
-  // Add special EOF character
-  blck.push_back(block::traits_type::eof());
-
   size_t bucketptr_a[256] = {0}, bucketptr_b[256] = {0};
   size_t bucketsize_b[256] = {0};
   
@@ -139,8 +136,7 @@ bzip2::block& bzip2::algorithm::bwt(block& blck) {
     }
   }
 
-  vector<size_t> suffix_array(blck.size());
-  fill(suffix_array.begin(), suffix_array.end(), block::traits_type::eof());
+  vector<size_t> suffix_array(blck.size(), 0);
 
   // Set indexes of Type B on the suffix_array
   for (size_t i=0, size=blck.size()-1; i<size; ++i) {
@@ -175,13 +171,13 @@ bzip2::block& bzip2::algorithm::bwt(block& blck) {
     }
   }
   
-  block compressed_data(blck);
+  block compressed_data(blck.size(), 0);
   for (size_t i=0, size=blck.size(); i<size; ++i) {
     size_t index = suffix_array.at(i);
     if (index)
       compressed_data.at(i) = blck.at(index - 1);
     else
-      compressed_data.at(i) = block::traits_type::eof();
+      compressed_data.at(i) = blck.at(blck.size() - 1);
   }
   blck.swap(compressed_data);
 
@@ -189,6 +185,42 @@ bzip2::block& bzip2::algorithm::bwt(block& blck) {
 }
 
 bzip2::block& bzip2::algorithm::reverse_bwt(block& blck) {
+  using namespace std;
+
+  size_t C[256] = {0};
+  vector<size_t> P(blck.size(), 0);
+  
+  for (size_t i=0, size=blck.size(); i<size; ++i) {
+    size_t index = static_cast<unsigned char>(blck.at(i));
+    P.at(i) = C[index];
+    C[index] += 1;
+  }
+
+//   for (int i=0; i<blck.size(); ++i)
+//     cout << P.at(i) << endl; 
+//   cout << endl;
+
+
+  size_t sum = 0;
+  for (size_t i=0, size=256; i<size; ++i) {
+    sum += C[i];
+    C[i] = sum - C[i];
+  }
+ 
+  vector<size_t> T(blck.size());
+  for (size_t i=0, size=blck.size(); i<size; ++i) {
+    size_t index = static_cast<unsigned char>(blck.at(i));
+    T.at(i) = P.at(i) + C[index];
+  }
+
+  block decompressed_data(blck.size(), 0);
+  for (size_t i=1, j=0, size=blck.size(); i<=size; ++i) {
+    decompressed_data.at(size - i) = blck.at(j);
+    j = T[j];
+  }
+  blck.swap(decompressed_data);
+
+  return blck;
 }
 
 bzip2::algorithm::suffix_compare::suffix_compare(const block& blck) : _blck(blck) {}
