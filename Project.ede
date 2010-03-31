@@ -7,8 +7,8 @@
    (ede-proj-target-makefile-program "Debug"
     :name "Debug"
     :path ""
-    :source '("block.h" "block.cpp" "main.cpp" "algorithm_blockbased.cpp" "radix.cpp")
-    :auxsource '("algorithm_blockbased.h" "algorithm_iteratorbased.h" "radix.h" "bwt.h")
+    :source '("block.h" "block.cpp" "main.cpp" "algorithm_blockbased.cpp" "radix.cpp" "mtf.cpp" "rle.cpp" "bwt.cpp")
+    :auxsource '("algorithm_blockbased.h" "algorithm_iteratorbased.h" "radix.h" "bwt.h" "mtf.h" "rle.h")
     )
    )
   )
