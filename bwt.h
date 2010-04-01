@@ -8,10 +8,10 @@ namespace compression {
     class suffix_compare {
       suffix_compare();
     public:
-      explicit suffix_compare(const block&);
+      explicit suffix_compare(const block_base&);
       bool operator()(size_t, size_t);
     private:
-      const block& _blck;
+      const block_base& _blck;
     };
   }
 }

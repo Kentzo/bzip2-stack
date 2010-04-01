@@ -4,12 +4,8 @@
 #include <memory>
 
 enum PROPERTY {
-  BWT_INDEX
+  BWT_INDEX // size_t
 };
-
-/*
-  If you do not use get/setProperty, you will use block_base instead of block and subclasses
- */
 
 namespace compression {
   typedef std::vector<unsigned char> block_base;

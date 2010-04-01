@@ -43,7 +43,7 @@ int main() {
   using namespace compression::algorithm;
 
   ifstream random("/dev/urandom");
-  char data[15] = {0};
+  char data[10000] = {0};
   random.read(data, sizeof(data)/sizeof(char));
   random.close();
 
@@ -68,13 +68,9 @@ int main() {
   {
     block test_bwt(new bzip2_imp);
     test_bwt.assign(data, data + sizeof(data)/sizeof(char));
-    print_codes(test_bwt);
     BWT(test_bwt);
-    print_codes(test_bwt);
     Reverse_BWT(test_bwt);
-    print_codes(test_bwt);
     bool is_equal = equal(test_bwt.begin(), test_bwt.end(), data, equal_to<block::value_type>());
-    cout << "BWT blockbased test is passed: " << is_equal << endl;
     results << "BWT blockbased test is passed: " << is_equal << endl;
   }
 
