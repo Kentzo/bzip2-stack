@@ -35,7 +35,7 @@ void compression::algorithm::Reverse_MTF(block_base& blck) {
 
   for (size_t i=0, size=blck.size(); i<size; ++i) {
     // Every blck[i] symbol has a position of real symbol in the alphabet
-    size_t index = static_cast<unsigned char>(blck.at(i)); // Convert char to unsigned char in order to correctly convert it to size_t
+    size_t index = blck.at(i);
     list<block_base::value_type>::iterator alphabet_pos = alphabet.begin();
     advance(alphabet_pos, index);
     blck.at(i) = *alphabet_pos;
