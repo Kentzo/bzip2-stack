@@ -14,6 +14,7 @@ namespace compression {
   public:
     virtual void setProperty(PROPERTY name, void* data) = 0;
     virtual void getProperty(PROPERTY name, void* var) = 0;
+    virtual ~block_imp() {};
   };
 
   class block : public block_base {
