@@ -43,17 +43,13 @@ int main(int argc, char **argv) {
   using namespace compression::algorithm;
   
   ifstream file_to_read;
-  size_t bytes_to_read = 0;
+  size_t bytes_to_read = 900;
 
   int current_opt = 0;
   while ((current_opt = getopt (argc, argv, "f:c:")) != -1) {
     switch (current_opt) {
     case 'f':
       file_to_read.open(optarg);
-      if (!file_to_read.is_open()) {
-	cout << "Cannot open file: " << optarg << endl;
-	return EXIT_FAILURE;
-      }
       cout << "The file is: " << optarg << endl;
       break;
     case 'c':
@@ -66,12 +62,16 @@ int main(int argc, char **argv) {
     }
   }
 
+  if (!file_to_read.is_open()) {
+    cout << "Cannot open file" << endl;
+    return EXIT_FAILURE;
+  }
+
   char *data = new char[bytes_to_read];
   file_to_read.read(data, bytes_to_read);
   file_to_read.close();
 
   ofstream results("test_results");
-  
   {
     block_base test_mtf(data, data + sizeof(data)/sizeof(char));
     MTF(test_mtf);

@@ -118,15 +118,15 @@ void compression::algorithm::Reverse_BWT(block& blck) {
   } // Now C[ch] is the total number of instances in blck of characters preceding ch in the alphabet
 
   // Fill output string back to front
-  block_base decompressed_data(blck.size() - 1);
-  //decompressed_data.back() = blck.at(I); // blck.at(I) is always SPECIAL_CHARACTER
+  block_base decompressed_data(blck.size(), 0);
+  decompressed_data.back() = blck.at(I); // blck.at(I) is always SPECIAL_CHARACTER
   size_t j = 0; // Next character always has index = 0
-  for (size_t i=1/*2*/, size=blck.size(); i<=size; ++i) {
+  for (size_t i=2, size=blck.size(); i<=size; ++i) {
     decompressed_data.at(size - i) = blck.at(j);
     size_t index = blck.at(j);
     j = P.at(j) + C[index];
   }
-  //decompressed_data.pop_back(); // Remove SPECIAL_CHARACTER
+  decompressed_data.pop_back(); // Remove SPECIAL_CHARACTER
   blck.swap(decompressed_data);
 }
 
