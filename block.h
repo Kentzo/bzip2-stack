@@ -7,6 +7,12 @@ enum PROPERTY {
   BWT_INDEX // size_t
 };
 
+/*
+We use bridge design pattern in order to separate part that responsible for 
+storing block properties (such as index of string in BWT matrix) from 
+part that responsible for block data managing.
+ */
+
 namespace compression {
   typedef std::vector<unsigned char> block_base;
 

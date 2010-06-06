@@ -7,9 +7,10 @@
   In order to construct BWT output we make suffix array using IT99.
   But our algorithm is a little differ from IT99. We cannot use special character '$' 
   which is less than all characters in alphabet. Instead of, we use character '\0'.
-  This approach requires some actions that must be done manually. See comments.
+  This approach requires some additional actions that must be done manually. See comments.
 */
-#define SPECIAL_CHARACTER (block::value_type)0 // Ours Special Character
+#define SPECIAL_CHARACTER (block::value_type)0 // Our Special Character
+
 void compression::algorithm::BWT(block& blck) {
   using namespace std;
 
