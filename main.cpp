@@ -37,15 +37,38 @@ void print_codes(const compression::block_base& b) {
   std::cout << std::endl;
 }
 
-int main() {
+int main(int argc, char **argv) {
   using namespace std;
   using namespace compression;
   using namespace compression::algorithm;
+  
+  ifstream file_to_read;
+  size_t bytes_to_read = 0;
 
-  ifstream random("/dev/urandom");
-  char data[10000] = {0};
-  random.read(data, sizeof(data)/sizeof(char));
-  random.close();
+  int current_opt = 0;
+  while ((current_opt = getopt (argc, argv, "f:c:")) != -1) {
+    switch (current_opt) {
+    case 'f':
+      file_to_read.open(optarg);
+      if (!file_to_read.is_open()) {
+	cout << "Cannot open file: " << optarg << endl;
+	return EXIT_FAILURE;
+      }
+      cout << "The file is: " << optarg << endl;
+      break;
+    case 'c':
+      cout << "The number of bytes to read is: " << optarg << endl;
+      bytes_to_read = atoi(optarg);
+      break;
+    default:
+      cout << "Use -f to set file and -c to set number of bytes to read" << endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  char *data = new char[bytes_to_read];
+  file_to_read.read(data, bytes_to_read);
+  file_to_read.close();
 
   ofstream results("test_results");
   
@@ -67,12 +90,14 @@ int main() {
   
   {
     block test_bwt(new bzip2_imp);
-    test_bwt.assign(data, data + sizeof(data)/sizeof(char));
+    test_bwt.assign(data, data + bytes_to_read);
+    cout << "size of block is: " << test_bwt.size() << endl;
     BWT(test_bwt);
     Reverse_BWT(test_bwt);
     bool is_equal = equal(test_bwt.begin(), test_bwt.end(), data, equal_to<block::value_type>());
     results << "BWT blockbased test is passed: " << is_equal << endl;
   }
-
-  return 0;
+  
+  delete[] data;
+  return EXIT_SUCCESS;
 }
