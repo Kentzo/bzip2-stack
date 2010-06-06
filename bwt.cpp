@@ -5,9 +5,9 @@
 
 /*
   In order to construct BWT output we make suffix array using IT99.
-  But ours algorithm a little differ from IT99. We cannot use special character '$' 
-  that is less than all characters in alphabet. Instead of, we use character '\0'.
-  This approach require some actions which must be done manually. See comments.
+  But our algorithm is a little differ from IT99. We cannot use special character '$' 
+  which is less than all characters in alphabet. Instead of, we use character '\0'.
+  This approach requires some actions that must be done manually. See comments.
 */
 #define SPECIAL_CHARACTER (block::value_type)0 // Ours Special Character
 void compression::algorithm::BWT(block& blck) {
@@ -36,7 +36,7 @@ void compression::algorithm::BWT(block& blck) {
       bucketptr_a[ch] = ptr;
       ptr += bucketsize_a[ch];
       ptr += bucketsize_b[ch];
-      bucketptr_b[ch] = ptr; // bucketptr_b pointer to the end of bucket on the suffix_array, we will fix it at the next step
+      bucketptr_b[ch] = ptr; // bucketptr_b[ch] now points to the end of bucket[ch] on the suffix_array
     }
   }
 
@@ -50,7 +50,7 @@ void compression::algorithm::BWT(block& blck) {
       bucketptr_b[cur_char] -= 1;
       suffix_array.at(bucketptr_b[cur_char]) = i;
     }
-  }
+  } // Now, bucketptr_b[ch] points to the bucket[ch] - bucketsize_b[ch]
   suffix_array.at(bucketptr_a[SPECIAL_CHARACTER]) = blck.size() - 1; // Special Character is always the first
 
   // Sort buckets of Type B on suffix_array
@@ -58,7 +58,8 @@ void compression::algorithm::BWT(block& blck) {
     if (bucketsize_b[ch] > 1) {
       vector<size_t>::iterator first = suffix_array.begin(); advance(first, bucketptr_b[ch]);
       vector<size_t>::iterator end = first; advance(end, bucketsize_b[ch]);
-      sort(first, end, suffix_compare(blck));
+      make_heap(first, end, suffix_compare(blck));
+      sort_heap(first, end, suffix_compare(blck));
     }
   }
 
@@ -116,15 +117,15 @@ void compression::algorithm::Reverse_BWT(block& blck) {
   } // Now C[ch] is the total number of instances in blck of characters preceding ch in the alphabet
 
   // Fill output string back to front
-  block_base decompressed_data(blck.size(), 0);
-  decompressed_data.back() = blck.at(I); 
+  block_base decompressed_data(blck.size() - 1);
+  //decompressed_data.back() = blck.at(I); // blck.at(I) is always SPECIAL_CHARACTER
   size_t j = 0; // Next character always has index = 0
-  for (size_t i=2, size=blck.size(); i<=size; ++i) {
+  for (size_t i=1/*2*/, size=blck.size(); i<=size; ++i) {
     decompressed_data.at(size - i) = blck.at(j);
     size_t index = blck.at(j);
     j = P.at(j) + C[index];
   }
-  decompressed_data.pop_back();
+  //decompressed_data.pop_back(); // Remove SPECIAL_CHARACTER
   blck.swap(decompressed_data);
 }
 
